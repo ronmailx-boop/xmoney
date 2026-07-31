@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1010 300" width="1010" height="300" role="img" aria-label="xmoney">
+  <defs>
+    <g id="oring">
+      <path d="M 0,-100 A 100,100 0 0 1 100,0 L 55,0 A 55,55 0 0 0 0,-55 Z" fill="#ffffff" stroke="#A6352B" stroke-width="4"/>
+      <path d="M 100,0 A 100,100 0 0 1 0,100 L 0,55 A 55,55 0 0 0 55,0 Z" fill="#5AA83F" stroke="#A6352B" stroke-width="4"/>
+      <path d="M 0,100 A 100,100 0 0 1 -100,0 L -55,0 A 55,55 0 0 0 0,55 Z" fill="#ffffff" stroke="#A6352B" stroke-width="4"/>
+      <path d="M -100,0 A 100,100 0 0 1 0,-100 L 0,-55 A 55,55 0 0 0 -55,0 Z" fill="#A6352B" stroke="#A6352B" stroke-width="4"/>
+    </g>
+  </defs>
+
+  <g font-family="Arial, Helvetica, sans-serif" font-weight="900" font-size="230" paint-order="stroke fill">
+    <text x="0" y="230" fill="#5AA83F">X</text>
+    <text x="150" y="230" fill="#ffffff" stroke="#A6352B" stroke-width="7">M</text>
+    <g transform="translate(490,150) scale(0.95)">
+      <use href="#oring"/>
+    </g>
+    <text x="615" y="230" fill="#ffffff" stroke="#A6352B" stroke-width="7">N</text>
+    <text x="758" y="230" fill="#ffffff" stroke="#A6352B" stroke-width="7">E</text>
+    <text x="888" y="230" fill="#ffffff" stroke="#A6352B" stroke-width="7">Y</text>
+  </g>
+</svg>

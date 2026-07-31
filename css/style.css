@@ -33,11 +33,9 @@ body {
   text-align: center;
 }
 
-.app-header h1 {
-  margin: 0;
-  font-size: 22px;
-  font-weight: 700;
-  letter-spacing: 0.5px;
+.app-logo {
+  height: 34px;
+  width: auto;
 }
 
 .app-main {
