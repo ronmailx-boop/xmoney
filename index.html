@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<title>xmoney - ניהול תקציב חכם</title>
+<meta name="theme-color" content="#0f172a">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="app-header">
+  <h1>xmoney</h1>
+</header>
+
+<main class="app-main">
+
+  <!-- מסך בית -->
+  <section id="screen-home" class="screen active">
+    <div class="cycle-summary" id="home-summary">
+      <div class="summary-item income">
+        <span class="summary-label">הכנסות</span>
+        <span class="summary-value" id="home-income">0</span>
+      </div>
+      <div class="summary-item balance">
+        <span class="summary-label">תזרים</span>
+        <span class="summary-value" id="home-balance">0</span>
+      </div>
+      <div class="summary-item expense">
+        <span class="summary-label">הוצאות</span>
+        <span class="summary-value" id="home-expense">0</span>
+      </div>
+    </div>
+
+    <div class="mic-area">
+      <button id="mic-button" class="mic-button" aria-label="הקלטה קולית">
+        <svg viewBox="0 0 24 24" width="40" height="40" fill="currentColor">
+          <path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21h2v-3.08A7 7 0 0 0 19 11h-2z"/>
+        </svg>
+      </button>
+      <p class="mic-hint" id="mic-hint">החזק לחיצה ודבר</p>
+    </div>
+
+    <form id="text-entry-form" class="text-entry-form">
+      <input type="text" id="text-entry-input" placeholder="לדוגמה: שילמתי רב קו 350 שח בכרטיס 3245" autocomplete="off">
+      <button type="submit" class="btn-primary">הוסף</button>
+    </form>
+
+    <div id="toast" class="toast hidden"></div>
+
+    <h2 class="section-title">תנועות אחרונות</h2>
+    <ul id="recent-list" class="tx-list"></ul>
+  </section>
+
+  <!-- מסך תנועות -->
+  <section id="screen-transactions" class="screen">
+    <div class="filter-tabs">
+      <button class="filter-tab active" data-filter="all">הכל</button>
+      <button class="filter-tab" data-filter="income">הכנסות</button>
+      <button class="filter-tab" data-filter="expense">הוצאות</button>
+    </div>
+    <ul id="full-list" class="tx-list"></ul>
+  </section>
+
+  <!-- מסך סטטיסטיקה -->
+  <section id="screen-stats" class="screen">
+    <div class="cycle-summary" id="stats-summary">
+      <div class="summary-item income">
+        <span class="summary-label">הכנסות</span>
+        <span class="summary-value" id="stats-income">0</span>
+      </div>
+      <div class="summary-item balance">
+        <span class="summary-label">תזרים</span>
+        <span class="summary-value" id="stats-balance">0</span>
+      </div>
+      <div class="summary-item expense">
+        <span class="summary-label">הוצאות</span>
+        <span class="summary-value" id="stats-expense">0</span>
+      </div>
+    </div>
+    <h2 class="section-title">הוצאות לפי קטגוריה</h2>
+    <div id="category-chart" class="category-chart"></div>
+  </section>
+
+  <!-- מסך הגדרות -->
+  <section id="screen-settings" class="screen">
+    <h2 class="section-title">מחזור חודשי</h2>
+    <label class="settings-field">
+      <span>יום תחילת המחזור בחודש</span>
+      <select id="cycle-day-select"></select>
+    </label>
+    <p class="settings-note">לדוגמה: אם תבחר 10, המחזור יהיה מה-10 בחודש עד ה-9 בחודש הבא.</p>
+  </section>
+
+</main>
+
+<nav class="bottom-nav">
+  <button class="nav-btn active" data-screen="screen-home">בית</button>
+  <button class="nav-btn" data-screen="screen-transactions">תנועות</button>
+  <button class="nav-btn" data-screen="screen-stats">סטטיסטיקה</button>
+  <button class="nav-btn" data-screen="screen-settings">הגדרות</button>
+</nav>
+
+<script src="js/storage.js"></script>
+<script src="js/categories.js"></script>
+<script src="js/parser.js"></script>
+<script src="js/stats.js"></script>
+<script src="js/voice.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
