@@ -1,9 +1,9 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="xmoney">
   <rect width="512" height="512" rx="96" fill="#0f172a"/>
   <g transform="translate(256,256) scale(1.75)">
-    <path d="M 0,-100 A 100,100 0 0 1 100,0 L 55,0 A 55,55 0 0 0 0,-55 Z" fill="#ffffff" stroke="#A6352B" stroke-width="4"/>
-    <path d="M 100,0 A 100,100 0 0 1 0,100 L 0,55 A 55,55 0 0 0 55,0 Z" fill="#5AA83F" stroke="#A6352B" stroke-width="4"/>
-    <path d="M 0,100 A 100,100 0 0 1 -100,0 L -55,0 A 55,55 0 0 0 0,55 Z" fill="#ffffff" stroke="#A6352B" stroke-width="4"/>
-    <path d="M -100,0 A 100,100 0 0 1 0,-100 L 0,-55 A 55,55 0 0 0 -55,0 Z" fill="#A6352B" stroke="#A6352B" stroke-width="4"/>
+    <path d="M 8.72,-99.62 A 100,100 0 0 1 99.62,-8.72 L 54.79,-4.79 A 55,55 0 0 0 4.79,-54.79 Z" fill="#ffffff" stroke="#DA291C" stroke-width="4"/>
+    <path d="M 99.62,8.72 A 100,100 0 0 1 8.72,99.62 L 4.79,54.79 A 55,55 0 0 0 54.79,4.79 Z" fill="#5AA83F" stroke="#DA291C" stroke-width="4"/>
+    <path d="M -8.72,99.62 A 100,100 0 0 1 -99.62,8.72 L -54.79,4.79 A 55,55 0 0 0 -4.79,54.79 Z" fill="#ffffff" stroke="#DA291C" stroke-width="4"/>
+    <path d="M -99.62,-8.72 A 100,100 0 0 1 -8.72,-99.62 L -4.79,-54.79 A 55,55 0 0 0 -54.79,-4.79 Z" fill="#DA291C" stroke="#DA291C" stroke-width="4"/>
   </g>
 </svg>
