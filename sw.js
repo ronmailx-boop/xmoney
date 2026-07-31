@@ -1,6 +1,6 @@
 // Service Worker קליל - caching של מעטפת האפליקציה לעבודה אופליין
 
-const CACHE_NAME = 'xmoney-shell-v1';
+const CACHE_NAME = 'xmoney-shell-v2';
 const SHELL_FILES = [
   './',
   './index.html',
@@ -12,7 +12,8 @@ const SHELL_FILES = [
   './js/voice.js',
   './js/app.js',
   './manifest.json',
-  './icons/icon.svg'
+  './icons/icon.svg',
+  './icons/logo-wordmark.svg'
 ];
 
 self.addEventListener('install', function (event) {
@@ -36,13 +37,19 @@ self.addEventListener('activate', function (event) {
   self.clients.claim();
 });
 
+// network-first: תמיד מנסה גרסה עדכנית מהרשת, ונופל לגרסה שמורה רק כשאין רשת
+// (לא cache-first, כדי שעדכונים לאפליקציה יופיעו מיד ולא יתקעו על גרסה ישנה)
 self.addEventListener('fetch', function (event) {
   if (event.request.method !== 'GET') return;
   event.respondWith(
-    caches.match(event.request).then(function (cached) {
-      return cached || fetch(event.request).catch(function () {
-        return cached;
+    fetch(event.request).then(function (response) {
+      const copy = response.clone();
+      caches.open(CACHE_NAME).then(function (cache) {
+        cache.put(event.request, copy);
       });
+      return response;
+    }).catch(function () {
+      return caches.match(event.request);
     })
   );
 });
