@@ -18,20 +18,25 @@ function initGoogleAuth(onAuthStateChange) {
   _onAuthStateChange = onAuthStateChange;
   if (!isGoogleSyncSupported()) return;
 
-  _tokenClient = google.accounts.oauth2.initTokenClient({
-    client_id: GOOGLE_CLIENT_ID,
-    scope: GOOGLE_DRIVE_SCOPE,
-    callback: function (response) {
-      if (response.error) {
-        notifySyncError('ההתחברות ל-Google נכשלה, נסה שוב');
-        return;
+  try {
+    _tokenClient = google.accounts.oauth2.initTokenClient({
+      client_id: GOOGLE_CLIENT_ID,
+      scope: GOOGLE_DRIVE_SCOPE,
+      callback: function (response) {
+        if (response.error) {
+          notifySyncError('ההתחברות ל-Google נכשלה, נסה שוב');
+          return;
+        }
+        _accessToken = response.access_token;
+        localStorage.setItem(SIGNED_IN_FLAG_KEY, '1');
+        if (_onAuthStateChange) _onAuthStateChange('signed-in');
+        performInitialSync();
       }
-      _accessToken = response.access_token;
-      localStorage.setItem(SIGNED_IN_FLAG_KEY, '1');
-      if (_onAuthStateChange) _onAuthStateChange('signed-in');
-      performInitialSync();
-    }
-  });
+    });
+  } catch (e) {
+    _tokenClient = null;
+    return;
+  }
 
   if (localStorage.getItem(SIGNED_IN_FLAG_KEY) === '1') {
     try {
@@ -43,8 +48,8 @@ function initGoogleAuth(onAuthStateChange) {
 }
 
 function signInToGoogle() {
-  if (!isGoogleSyncSupported()) {
-    notifySyncError('סנכרון Google אינו זמין בדפדפן הזה כרגע');
+  if (!isGoogleSyncSupported() || !_tokenClient) {
+    notifySyncError('סנכרון Google אינו זמין כרגע - בדוק את החיבור לאינטרנט ורענן את הדף');
     return;
   }
   _tokenClient.requestAccessToken({ prompt: 'consent' });
