@@ -58,17 +58,31 @@ function extractDate(text) {
 }
 
 function extractMethod(text) {
-  let m = text.match(/ב?כרטיס\s*(\d{3,6})/);
+  // עדיפות ראשונה: "כרטיס (אשראי) NNNN" / "כרטיס NNNN" - שתיהן מתועדות כ"אשראי NNNN",
+  // כי זו מילת אמצעי התשלום הרשמית שבוחר הבורר (מזומן/בנק/אשראי).
+  let m = text.match(/ב?כרטיס(?:\s+אשראי)?\s*(\d{3,6})/);
   if (m) {
-    return { method: 'כרטיס ' + m[1], matchStr: m[0] };
+    return { method: 'אשראי ' + m[1], matchStr: m[0] };
+  }
+  // (?=\s|$) מונע התאמה חלקית בתוך מילה ארוכה יותר (למשל "ביט" בתוך "ביטוח") -
+  // \b לא אמין כאן כי \w ב-JS הוא ASCII בלבד ולא כולל אותיות עבריות.
+  m = text.match(/ב?כרטיס\s+אשראי(?=\s|$)/);
+  if (m) {
+    return { method: 'אשראי', matchStr: m[0] };
+  }
+  m = text.match(/ב?אשראי(?=\s|$)/);
+  if (m) {
+    return { method: 'אשראי', matchStr: m[0] };
   }
   if (/ב?מזומן/.test(text)) {
     m = text.match(/ב?מזומן/);
     return { method: 'מזומן', matchStr: m[0] };
   }
-  // (?=\s|$) מונע התאמה חלקית בתוך מילה ארוכה יותר (למשל "ביט" בתוך "ביטוח") -
-  // \b לא אמין כאן כי \w ב-JS הוא ASCII בלבד ולא כולל אותיות עבריות.
-  m = text.match(/ב?(?:העברה בנקאית|העברה|ביט|פייבוקס)(?=\s|$)/);
+  m = text.match(/ב?(?:העברה בנקאית|העברה|בנק)(?=\s|$)/);
+  if (m) {
+    return { method: 'בנק', matchStr: m[0] };
+  }
+  m = text.match(/ב?(?:ביט|פייבוקס)(?=\s|$)/);
   if (m) {
     return { method: m[0].replace(/^ב/, ''), matchStr: m[0] };
   }
@@ -153,7 +167,6 @@ function parseEntryText(rawText) {
   const category = matchCategory(text, type);
 
   const descParts = [];
-  if (type === 'expense' && methodResult.method) descParts.push(methodResult.method);
   if (text) descParts.push(text);
   if (type === 'income' && source) descParts.push(source);
   const description = descParts.join(' ').replace(/\s{2,}/g, ' ').trim() || (type === 'income' ? 'הכנסה' : 'הוצאה');

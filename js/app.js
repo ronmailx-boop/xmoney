@@ -33,14 +33,24 @@ function buildTxRow(tx) {
   const date = el('span', 'tx-date', formatDisplayDate(tx.date));
   const info = el('div', 'tx-info');
   const desc = el('div', 'tx-desc', tx.description);
+  const meta = el('div', 'tx-meta');
   const cat = el('div', 'tx-category', tx.category + ' ▾');
   cat.addEventListener('click', function () {
     showCategoryPicker(tx);
   });
+  const method = el('div', 'tx-method' + (tx.method ? '' : ' empty'), (tx.method || 'אמצעי תשלום') + ' ▾');
+  method.addEventListener('click', function () {
+    showMethodPicker(tx);
+  });
+  meta.appendChild(cat);
+  meta.appendChild(method);
   info.appendChild(desc);
-  info.appendChild(cat);
+  info.appendChild(meta);
 
   const amount = el('span', 'tx-amount', (tx.type === 'income' ? '+' : '-') + formatAmount(tx.amount) + ' שח');
+  amount.addEventListener('click', function () {
+    showAmountEditor(tx);
+  });
 
   const delBtn = el('button', 'tx-delete', '✕');
   delBtn.setAttribute('aria-label', 'מחק');
@@ -216,6 +226,141 @@ function showCategoryPicker(tx) {
 
   overlay.appendChild(card);
   document.body.appendChild(overlay);
+}
+
+function applyMethodToTransaction(tx, method) {
+  updateTransactionInStorage(tx.id, { method: method });
+  renderHome();
+  renderFullList();
+  renderStats();
+}
+
+function showMethodPicker(tx) {
+  const overlay = el('div', 'modal-overlay');
+  const card = el('div', 'modal-card');
+  card.appendChild(el('div', 'modal-title', 'אמצעי תשלום'));
+
+  function close() {
+    overlay.remove();
+  }
+
+  const quickList = el('div', 'category-option-list');
+
+  function pick(method) {
+    close();
+    applyMethodToTransaction(tx, method);
+  }
+
+  ['מזומן', 'בנק'].forEach(function (label) {
+    const option = el('button', 'category-option' + (tx.method === label ? ' selected' : ''), label);
+    option.addEventListener('click', function () { pick(label); });
+    quickList.appendChild(option);
+  });
+
+  const creditOption = el('button', 'category-option' + (tx.method && tx.method.indexOf('אשראי') === 0 ? ' selected' : ''), 'אשראי');
+  quickList.appendChild(creditOption);
+  card.appendChild(quickList);
+
+  const cardRow = el('div', 'category-new-row hidden');
+  const cardInput = el('input', null);
+  cardInput.type = 'text';
+  cardInput.inputMode = 'numeric';
+  cardInput.placeholder = 'מספר כרטיס (אופציונלי)';
+  const cardBtn = el('button', 'btn-primary', 'אישור');
+  cardRow.appendChild(cardInput);
+  cardRow.appendChild(cardBtn);
+  card.appendChild(cardRow);
+
+  creditOption.addEventListener('click', function () {
+    cardRow.classList.remove('hidden');
+    cardInput.focus();
+  });
+  function confirmCredit() {
+    const digits = cardInput.value.trim();
+    pick(digits ? 'אשראי ' + digits : 'אשראי');
+  }
+  cardBtn.addEventListener('click', confirmCredit);
+  cardInput.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      confirmCredit();
+    }
+  });
+
+  const otherRow = el('div', 'category-new-row');
+  const otherInput = el('input', null);
+  otherInput.type = 'text';
+  otherInput.placeholder = 'אמצעי תשלום אחר...';
+  const otherBtn = el('button', 'btn-primary', 'שמור');
+  otherRow.appendChild(otherInput);
+  otherRow.appendChild(otherBtn);
+  card.appendChild(otherRow);
+
+  function confirmOther() {
+    const name = otherInput.value.trim();
+    if (!name) return;
+    pick(name);
+  }
+  otherBtn.addEventListener('click', confirmOther);
+  otherInput.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      confirmOther();
+    }
+  });
+
+  overlay.addEventListener('click', function (e) {
+    if (e.target === overlay) close();
+  });
+
+  overlay.appendChild(card);
+  document.body.appendChild(overlay);
+}
+
+function showAmountEditor(tx) {
+  const overlay = el('div', 'modal-overlay');
+  const card = el('div', 'modal-card');
+  card.appendChild(el('div', 'modal-title', 'עדכון סכום'));
+
+  function close() {
+    overlay.remove();
+  }
+
+  const row = el('div', 'category-new-row');
+  const input = el('input', null);
+  input.type = 'number';
+  input.inputMode = 'decimal';
+  input.step = '0.01';
+  input.min = '0';
+  input.value = tx.amount;
+  row.appendChild(input);
+  card.appendChild(row);
+
+  const actions = el('div', 'modal-actions');
+  const cancelBtn = el('button', 'btn-secondary', 'ביטול');
+  const saveBtn = el('button', 'btn-primary', 'שמור');
+  actions.appendChild(cancelBtn);
+  actions.appendChild(saveBtn);
+  card.appendChild(actions);
+
+  cancelBtn.addEventListener('click', close);
+  saveBtn.addEventListener('click', function () {
+    const value = parseFloat(input.value);
+    if (isNaN(value) || value <= 0) return;
+    close();
+    updateTransactionInStorage(tx.id, { amount: value });
+    renderHome();
+    renderFullList();
+    renderStats();
+  });
+
+  overlay.addEventListener('click', function (e) {
+    if (e.target === overlay) close();
+  });
+
+  overlay.appendChild(card);
+  document.body.appendChild(overlay);
+  input.focus();
 }
 
 function showToast(message, onUndo) {

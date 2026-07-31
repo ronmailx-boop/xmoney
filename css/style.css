@@ -336,17 +336,37 @@ body {
   white-space: nowrap;
 }
 
-.tx-row .tx-category {
+.tx-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 2px;
+}
+
+.tx-row .tx-category,
+.tx-row .tx-method {
   font-size: 11px;
   color: var(--text-dim);
   cursor: pointer;
   width: fit-content;
 }
 
+.tx-row .tx-method.empty {
+  color: var(--accent);
+  border: 1px dashed var(--accent);
+  border-radius: 8px;
+  padding: 0 6px;
+}
+
 .tx-row .tx-amount {
   font-size: 14px;
   font-weight: 700;
   white-space: nowrap;
+  cursor: pointer;
+}
+
+.hidden {
+  display: none;
 }
 
 .tx-row.income .tx-amount { color: var(--income); }
