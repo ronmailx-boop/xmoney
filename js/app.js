@@ -42,12 +42,12 @@ function buildTxRow(tx) {
   const delBtn = el('button', 'tx-delete', '✕');
   delBtn.setAttribute('aria-label', 'מחק');
   delBtn.addEventListener('click', function () {
-    if (confirm('למחוק את השורה הזו?')) {
+    showConfirmDialog('למחוק את התנועה?', tx.description, function () {
       deleteTransactionFromStorage(tx.id);
       renderHome();
       renderFullList();
       renderStats();
-    }
+    });
   });
 
   li.appendChild(date);
@@ -124,6 +124,36 @@ function renderStats() {
     rowEl.appendChild(barBg);
     chart.appendChild(rowEl);
   });
+}
+
+function showConfirmDialog(title, subtitle, onConfirm) {
+  const overlay = el('div', 'modal-overlay');
+  const card = el('div', 'modal-card');
+  card.appendChild(el('div', 'modal-title', title));
+  if (subtitle) card.appendChild(el('div', 'modal-subtitle', subtitle));
+
+  const actions = el('div', 'modal-actions');
+  const cancelBtn = el('button', 'btn-secondary', 'ביטול');
+  const confirmBtn = el('button', 'btn-danger', 'מחק');
+
+  function close() {
+    overlay.remove();
+  }
+
+  cancelBtn.addEventListener('click', close);
+  overlay.addEventListener('click', function (e) {
+    if (e.target === overlay) close();
+  });
+  confirmBtn.addEventListener('click', function () {
+    close();
+    onConfirm();
+  });
+
+  actions.appendChild(cancelBtn);
+  actions.appendChild(confirmBtn);
+  card.appendChild(actions);
+  overlay.appendChild(card);
+  document.body.appendChild(overlay);
 }
 
 function showToast(message, onUndo) {
