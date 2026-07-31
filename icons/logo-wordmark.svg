@@ -1,10 +1,10 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1010 300" width="1010" height="300" role="img" aria-label="xmoney">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-6 16 1054 269" width="1054" height="269" role="img" aria-label="xmoney">
   <defs>
     <g id="oring">
-      <path d="M 8.72,-99.62 A 100,100 0 0 1 99.62,-8.72 L 54.79,-4.79 A 55,55 0 0 0 4.79,-54.79 Z" fill="#ffffff" stroke="#DA291C" stroke-width="4"/>
-      <path d="M 99.62,8.72 A 100,100 0 0 1 8.72,99.62 L 4.79,54.79 A 55,55 0 0 0 54.79,4.79 Z" fill="#5AA83F" stroke="#DA291C" stroke-width="4"/>
-      <path d="M -8.72,99.62 A 100,100 0 0 1 -99.62,8.72 L -54.79,4.79 A 55,55 0 0 0 -4.79,54.79 Z" fill="#ffffff" stroke="#DA291C" stroke-width="4"/>
-      <path d="M -99.62,-8.72 A 100,100 0 0 1 -8.72,-99.62 L -4.79,-54.79 A 55,55 0 0 0 -54.79,-4.79 Z" fill="#DA291C" stroke="#DA291C" stroke-width="4"/>
+      <path d="M 5,-99.87 A 100,100 0 0 1 99.87,-5 L 54.77,-5 A 55,55 0 0 0 5,-54.77 Z" fill="#ffffff" stroke="#DA291C" stroke-width="4"/>
+      <path d="M 99.87,5 A 100,100 0 0 1 5,99.87 L 5,54.77 A 55,55 0 0 0 54.77,5 Z" fill="#5AA83F" stroke="#DA291C" stroke-width="4"/>
+      <path d="M -5,99.87 A 100,100 0 0 1 -99.87,5 L -54.77,5 A 55,55 0 0 0 -5,54.77 Z" fill="#ffffff" stroke="#DA291C" stroke-width="4"/>
+      <path d="M -99.87,-5 A 100,100 0 0 1 -5,-99.87 L -5,-54.77 A 55,55 0 0 0 -54.77,-5 Z" fill="#DA291C" stroke="#DA291C" stroke-width="4"/>
     </g>
   </defs>
 
