@@ -35,6 +35,15 @@ function deleteTransactionFromStorage(id) {
   saveTransactions(list);
 }
 
+function updateTransactionInStorage(id, changes) {
+  const list = getTransactions();
+  const tx = list.find(function (t) { return t.id === id; });
+  if (!tx) return null;
+  Object.assign(tx, changes);
+  saveTransactions(list);
+  return tx;
+}
+
 function getSettings() {
   return Object.assign({ cycleStartDay: 1 }, safeParse(localStorage.getItem(STORAGE_KEYS.SETTINGS), {}));
 }

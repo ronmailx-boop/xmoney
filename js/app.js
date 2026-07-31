@@ -33,7 +33,10 @@ function buildTxRow(tx) {
   const date = el('span', 'tx-date', formatDisplayDate(tx.date));
   const info = el('div', 'tx-info');
   const desc = el('div', 'tx-desc', tx.description);
-  const cat = el('div', 'tx-category', tx.category);
+  const cat = el('div', 'tx-category', tx.category + ' ▾');
+  cat.addEventListener('click', function () {
+    showCategoryPicker(tx);
+  });
   info.appendChild(desc);
   info.appendChild(cat);
 
@@ -152,6 +155,65 @@ function showConfirmDialog(title, subtitle, onConfirm) {
   actions.appendChild(cancelBtn);
   actions.appendChild(confirmBtn);
   card.appendChild(actions);
+  overlay.appendChild(card);
+  document.body.appendChild(overlay);
+}
+
+function applyCategoryToTransaction(tx, category) {
+  updateTransactionInStorage(tx.id, { category: category });
+  renderHome();
+  renderFullList();
+  renderStats();
+}
+
+function showCategoryPicker(tx) {
+  const overlay = el('div', 'modal-overlay');
+  const card = el('div', 'modal-card');
+  card.appendChild(el('div', 'modal-title', 'בחר קטגוריה'));
+
+  function close() {
+    overlay.remove();
+  }
+
+  const list = el('div', 'category-option-list');
+  getAllCategories(tx.type).forEach(function (cat) {
+    const option = el('button', 'category-option' + (cat === tx.category ? ' selected' : ''), cat);
+    option.addEventListener('click', function () {
+      close();
+      applyCategoryToTransaction(tx, cat);
+    });
+    list.appendChild(option);
+  });
+  card.appendChild(list);
+
+  const newRow = el('div', 'category-new-row');
+  const newInput = el('input', null);
+  newInput.type = 'text';
+  newInput.placeholder = 'קטגוריה חדשה...';
+  const newBtn = el('button', 'btn-primary', 'צור');
+  newRow.appendChild(newInput);
+  newRow.appendChild(newBtn);
+  card.appendChild(newRow);
+
+  function createNewCategory() {
+    const name = newInput.value.trim();
+    if (!name) return;
+    addDynamicCategoryToStorage(name, tx.type);
+    close();
+    applyCategoryToTransaction(tx, name);
+  }
+  newBtn.addEventListener('click', createNewCategory);
+  newInput.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      createNewCategory();
+    }
+  });
+
+  overlay.addEventListener('click', function (e) {
+    if (e.target === overlay) close();
+  });
+
   overlay.appendChild(card);
   document.body.appendChild(overlay);
 }
