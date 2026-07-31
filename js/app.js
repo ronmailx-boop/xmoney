@@ -60,6 +60,7 @@ function buildTxRow(tx) {
       renderHome();
       renderFullList();
       renderStats();
+      scheduleCloudSync();
     });
   });
 
@@ -174,6 +175,7 @@ function applyCategoryToTransaction(tx, category) {
   renderHome();
   renderFullList();
   renderStats();
+  scheduleCloudSync();
 }
 
 function showCategoryPicker(tx) {
@@ -233,6 +235,7 @@ function applyMethodToTransaction(tx, method) {
   renderHome();
   renderFullList();
   renderStats();
+  scheduleCloudSync();
 }
 
 function showMethodPicker(tx) {
@@ -352,6 +355,7 @@ function showAmountEditor(tx) {
     renderHome();
     renderFullList();
     renderStats();
+    scheduleCloudSync();
   });
 
   overlay.addEventListener('click', function (e) {
@@ -392,11 +396,13 @@ function commitParsedEntry(parsed) {
   renderHome();
   renderFullList();
   renderStats();
+  scheduleCloudSync();
   showToast('נוסף: ' + tx.description + ' - ' + formatAmount(tx.amount) + ' שח', function () {
     deleteTransactionFromStorage(tx.id);
     renderHome();
     renderFullList();
     renderStats();
+    scheduleCloudSync();
   });
 }
 
@@ -498,7 +504,43 @@ function setupSettings() {
     saveSettings(s);
     renderHome();
     renderStats();
+    scheduleCloudSync();
   });
+}
+
+function setupGoogleSync() {
+  const statusEl = document.getElementById('sync-status');
+  const signInBtn = document.getElementById('google-signin-btn');
+  const signOutBtn = document.getElementById('google-signout-btn');
+
+  function refreshUI() {
+    if (isSignedInToGoogle()) {
+      statusEl.textContent = 'מחובר - הנתונים מסונכרנים אוטומטית ל-Google Drive';
+      signInBtn.classList.add('hidden');
+      signOutBtn.classList.remove('hidden');
+    } else {
+      statusEl.textContent = 'לא מחובר - הנתונים נשמרים רק במכשיר הזה';
+      signInBtn.classList.remove('hidden');
+      signOutBtn.classList.add('hidden');
+    }
+  }
+
+  signInBtn.addEventListener('click', function () {
+    signInToGoogle();
+  });
+  signOutBtn.addEventListener('click', function () {
+    signOutFromGoogle();
+    refreshUI();
+  });
+
+  initGoogleAuth(function (state) {
+    refreshUI();
+    if (state === 'signed-in') {
+      showToast('מתחבר ל-Google Drive ומסנכרן...');
+    }
+  });
+
+  refreshUI();
 }
 
 function init() {
@@ -507,6 +549,7 @@ function init() {
   setupTextForm();
   setupMic();
   setupSettings();
+  setupGoogleSync();
   renderHome();
 
   if ('serviceWorker' in navigator) {

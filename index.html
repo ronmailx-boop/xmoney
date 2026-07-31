@@ -92,6 +92,13 @@
       <select id="cycle-day-select"></select>
     </label>
     <p class="settings-note">לדוגמה: אם תבחר 10, המחזור יהיה מה-10 בחודש עד ה-9 בחודש הבא.</p>
+
+    <h2 class="section-title">סנכרון עם Google Drive</h2>
+    <div class="sync-box">
+      <p class="sync-status" id="sync-status">לא מחובר - הנתונים נשמרים רק במכשיר הזה</p>
+      <button id="google-signin-btn" class="btn-primary">התחבר עם Google</button>
+      <button id="google-signout-btn" class="btn-secondary hidden">התנתק</button>
+    </div>
   </section>
 
 </main>
@@ -103,11 +110,14 @@
   <button class="nav-btn" data-screen="screen-settings">הגדרות</button>
 </nav>
 
+<script src="js/config.js"></script>
 <script src="js/storage.js"></script>
 <script src="js/categories.js"></script>
 <script src="js/parser.js"></script>
 <script src="js/stats.js"></script>
 <script src="js/voice.js"></script>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script src="js/sync.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>

@@ -469,6 +469,20 @@ body {
   margin: 10px 4px;
 }
 
+.sync-box {
+  background: var(--surface);
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.sync-status {
+  font-size: 13px;
+  color: var(--text-dim);
+}
+
 .bottom-nav {
   position: fixed;
   bottom: 0;
