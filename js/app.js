@@ -584,6 +584,27 @@ function setupSettings() {
   });
 }
 
+function applyTextSize(size) {
+  document.body.classList.remove('text-size-large', 'text-size-xlarge');
+  if (size === 'large') document.body.classList.add('text-size-large');
+  if (size === 'xlarge') document.body.classList.add('text-size-xlarge');
+}
+
+function setupTextSize() {
+  const select = document.getElementById('text-size-select');
+  const settings = getSettings();
+  const current = settings.textSize || 'normal';
+  select.value = current;
+  applyTextSize(current);
+  select.addEventListener('change', function () {
+    const s = getSettings();
+    s.textSize = select.value;
+    saveSettings(s);
+    applyTextSize(select.value);
+    scheduleCloudSync();
+  });
+}
+
 function setupGoogleSync() {
   const statusEl = document.getElementById('sync-status');
   const signInBtn = document.getElementById('google-signin-btn');
@@ -625,6 +646,7 @@ function init() {
   setupTextForm();
   setupMic();
   setupSettings();
+  setupTextSize();
   setupGoogleSync();
   renderHome();
 

@@ -12,6 +12,15 @@
   --income: #22c55e;
   --expense: #f43f5e;
   --border: #2c3b58;
+  --tx-text-scale: 1;
+}
+
+body.text-size-large {
+  --tx-text-scale: 1.2;
+}
+
+body.text-size-xlarge {
+  --tx-text-scale: 1.45;
 }
 
 html, body {
@@ -341,7 +350,7 @@ body {
 }
 
 .tx-row .tx-date {
-  font-size: 12px;
+  font-size: calc(12px * var(--tx-text-scale));
   color: var(--text-dim);
   min-width: 54px;
 }
@@ -352,7 +361,7 @@ body {
 }
 
 .tx-row .tx-desc {
-  font-size: 14px;
+  font-size: calc(14px * var(--tx-text-scale));
   font-weight: 600;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -370,7 +379,7 @@ body {
 
 .tx-row .tx-category,
 .tx-row .tx-method {
-  font-size: 11px;
+  font-size: calc(11px * var(--tx-text-scale));
   color: var(--text-dim);
   cursor: pointer;
   width: fit-content;
@@ -384,7 +393,7 @@ body {
 }
 
 .tx-row .tx-amount {
-  font-size: 14px;
+  font-size: calc(14px * var(--tx-text-scale));
   font-weight: 700;
   white-space: nowrap;
   cursor: pointer;
