@@ -33,6 +33,9 @@ function buildTxRow(tx) {
   const date = el('span', 'tx-date', formatDisplayDate(tx.date));
   const info = el('div', 'tx-info');
   const desc = el('div', 'tx-desc', tx.description);
+  desc.addEventListener('click', function () {
+    showDescriptionEditor(tx);
+  });
   const meta = el('div', 'tx-meta');
   const cat = el('div', 'tx-category', tx.category + ' ▾');
   cat.addEventListener('click', function () {
@@ -188,15 +191,36 @@ function showCategoryPicker(tx) {
   }
 
   const list = el('div', 'category-option-list');
-  getAllCategories(tx.type).forEach(function (cat) {
-    const option = el('button', 'category-option' + (cat === tx.category ? ' selected' : ''), cat);
-    option.addEventListener('click', function () {
-      close();
-      applyCategoryToTransaction(tx, cat);
-    });
-    list.appendChild(option);
-  });
   card.appendChild(list);
+
+  function renderOptions() {
+    list.innerHTML = '';
+    getAllCategories(tx.type).forEach(function (cat) {
+      const option = el('div', 'category-option' + (cat === tx.category ? ' selected' : ''));
+      const label = el('span', 'category-option-label', cat);
+      label.addEventListener('click', function () {
+        close();
+        applyCategoryToTransaction(tx, cat);
+      });
+      option.appendChild(label);
+
+      if (!isBuiltInCategory(cat, tx.type)) {
+        const delBtn = el('button', 'category-option-delete', '✕');
+        delBtn.setAttribute('aria-label', 'מחק קטגוריה');
+        delBtn.addEventListener('click', function (e) {
+          e.stopPropagation();
+          showConfirmDialog('למחוק את הקטגוריה "' + cat + '"?', null, function () {
+            removeDynamicCategoryFromStorage(cat, tx.type);
+            renderOptions();
+          });
+        });
+        option.appendChild(delBtn);
+      }
+
+      list.appendChild(option);
+    });
+  }
+  renderOptions();
 
   const newRow = el('div', 'category-new-row');
   const newInput = el('input', null);
@@ -318,6 +342,58 @@ function showMethodPicker(tx) {
 
   overlay.appendChild(card);
   document.body.appendChild(overlay);
+}
+
+function showDescriptionEditor(tx) {
+  const overlay = el('div', 'modal-overlay');
+  const card = el('div', 'modal-card');
+  card.appendChild(el('div', 'modal-title', 'עדכון שם הפעולה'));
+
+  function close() {
+    overlay.remove();
+  }
+
+  const row = el('div', 'category-new-row');
+  const input = el('input', null);
+  input.type = 'text';
+  input.value = tx.description;
+  row.appendChild(input);
+  card.appendChild(row);
+
+  const actions = el('div', 'modal-actions');
+  const cancelBtn = el('button', 'btn-secondary', 'ביטול');
+  const saveBtn = el('button', 'btn-primary', 'שמור');
+  actions.appendChild(cancelBtn);
+  actions.appendChild(saveBtn);
+  card.appendChild(actions);
+
+  function save() {
+    const value = input.value.trim();
+    if (!value) return;
+    close();
+    updateTransactionInStorage(tx.id, { description: value });
+    renderHome();
+    renderFullList();
+    renderStats();
+    scheduleCloudSync();
+  }
+
+  cancelBtn.addEventListener('click', close);
+  saveBtn.addEventListener('click', save);
+  input.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      save();
+    }
+  });
+
+  overlay.addEventListener('click', function (e) {
+    if (e.target === overlay) close();
+  });
+
+  overlay.appendChild(card);
+  document.body.appendChild(overlay);
+  input.focus();
 }
 
 function showAmountEditor(tx) {

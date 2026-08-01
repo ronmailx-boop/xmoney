@@ -66,6 +66,14 @@ function addDynamicCategoryToStorage(name, type) {
   }
 }
 
+function removeDynamicCategoryFromStorage(name, type) {
+  const cats = getDynamicCategories();
+  const key = type === 'income' ? 'income' : 'expense';
+  if (!cats[key]) return;
+  cats[key] = cats[key].filter(function (c) { return c !== name; });
+  localStorage.setItem(STORAGE_KEYS.CATEGORIES, JSON.stringify(cats));
+}
+
 function generateId() {
   return 'tx_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 8);
 }

@@ -56,3 +56,8 @@ function getAllCategories(type) {
   merged.push(FALLBACK_CATEGORY[type]);
   return merged;
 }
+
+function isBuiltInCategory(name, type) {
+  const base = Object.keys(type === 'income' ? INCOME_CATEGORIES : EXPENSE_CATEGORIES);
+  return base.indexOf(name) !== -1 || name === FALLBACK_CATEGORY[type];
+}
