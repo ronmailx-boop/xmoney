@@ -338,6 +338,7 @@ body {
   padding: 12px 14px;
   display: flex;
   flex-wrap: wrap;
+  justify-content: center;
   align-items: center;
   gap: 6px 10px;
 }
@@ -357,6 +358,7 @@ body {
   font-size: calc(14px * var(--tx-text-scale));
   font-weight: 600;
   overflow-wrap: break-word;
+  text-align: center;
   cursor: pointer;
 }
 
