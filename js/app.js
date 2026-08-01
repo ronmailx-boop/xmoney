@@ -67,10 +67,13 @@ function buildTxRow(tx) {
     });
   });
 
+  const bottomRow = el('div', 'tx-bottom-row');
+  bottomRow.appendChild(amount);
+  bottomRow.appendChild(delBtn);
+
   li.appendChild(date);
   li.appendChild(info);
-  li.appendChild(amount);
-  li.appendChild(delBtn);
+  li.appendChild(bottomRow);
   return li;
 }
 
