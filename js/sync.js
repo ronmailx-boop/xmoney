@@ -1,66 +1,106 @@
-// סנכרון עם Google Drive (תיקיית appData נסתרת) - התחברות, מיזוג, ודחיפה אוטומטית.
-// כל הפעולות הן best-effort: כשל ברשת/הרשאה לא פוגע בשימוש הרגיל באפליקציה (שממשיכה
-// לעבוד לגמרי מה-localStorage), רק מציג הודעת שגיאה קצרה בעברית.
+// סנכרון עם Google Drive (תיקיית appData נסתרת) - התחברות קבועה עד התנתקות מפורשת,
+// דרך שרת אימות זעיר (Cloudflare Worker, ראו worker/index.js) ששומר Refresh Token
+// בבטחון בצד השרת - הדפדפן מחזיק רק "device token" אקראי (לא סוד רגיש), ומבקש טוקן
+// גישה טרי מהשרת בכל טעינת דף. כל הפעולות הן best-effort: כשל ברשת/הרשאה לא פוגע
+// בשימוש הרגיל באפליקציה (שממשיכה לעבוד לגמרי מה-localStorage), רק מציג הודעת שגיאה.
 
-const SIGNED_IN_FLAG_KEY = 'xmoney_google_signed_in';
+const DEVICE_TOKEN_KEY = 'xmoney_device_token';
 
-let _tokenClient = null;
 let _accessToken = null;
 let _syncFileId = null;
 let _syncDebounceTimer = null;
 let _onAuthStateChange = null;
 
 function isGoogleSyncSupported() {
-  return typeof google !== 'undefined' && !!(google.accounts && google.accounts.oauth2);
+  return typeof AUTH_WORKER_URL === 'string' &&
+    AUTH_WORKER_URL.indexOf('http') === 0 &&
+    AUTH_WORKER_URL.indexOf('REPLACE-WITH') === -1;
+}
+
+function getDeviceToken() {
+  return localStorage.getItem(DEVICE_TOKEN_KEY);
+}
+
+function wasSignedInBefore() {
+  return !!getDeviceToken();
+}
+
+function consumeAuthResultFromUrl() {
+  const params = new URLSearchParams(window.location.search);
+  const authToken = params.get('auth_token');
+  const authError = params.get('auth_error');
+  if (!authToken && !authError) return { authToken: null, authError: null };
+
+  if (authToken) localStorage.setItem(DEVICE_TOKEN_KEY, authToken);
+  params.delete('auth_token');
+  params.delete('auth_error');
+  const newSearch = params.toString();
+  const newUrl = window.location.pathname + (newSearch ? '?' + newSearch : '') + window.location.hash;
+  window.history.replaceState({}, '', newUrl);
+  return { authToken: authToken, authError: authError };
+}
+
+function fetchFreshAccessToken() {
+  const deviceToken = getDeviceToken();
+  if (!deviceToken) return Promise.resolve(null);
+  return fetch(AUTH_WORKER_URL + '/auth/token', { headers: { 'X-Device-Token': deviceToken } })
+    .then(function (res) {
+      if (!res.ok) throw new Error('token refresh failed');
+      return res.json();
+    })
+    .then(function (json) {
+      _accessToken = json.access_token;
+      return _accessToken;
+    })
+    .catch(function () {
+      _accessToken = null;
+      localStorage.removeItem(DEVICE_TOKEN_KEY);
+      return null;
+    });
 }
 
 function initGoogleAuth(onAuthStateChange) {
   _onAuthStateChange = onAuthStateChange;
   if (!isGoogleSyncSupported()) return;
 
-  try {
-    _tokenClient = google.accounts.oauth2.initTokenClient({
-      client_id: GOOGLE_CLIENT_ID,
-      scope: GOOGLE_DRIVE_SCOPE,
-      callback: function (response) {
-        if (response.error) {
-          notifySyncError('ההתחברות ל-Google נכשלה, נסה שוב');
-          return;
-        }
-        _accessToken = response.access_token;
-        localStorage.setItem(SIGNED_IN_FLAG_KEY, '1');
-        if (_onAuthStateChange) _onAuthStateChange('signed-in');
-        performInitialSync();
-      }
-    });
-  } catch (e) {
-    _tokenClient = null;
+  const urlResult = consumeAuthResultFromUrl();
+  if (urlResult.authError) {
+    notifySyncError('ההתחברות ל-Google נכשלה, נסה שוב');
   }
-  // הערה: בכוונה אין כאן ניסיון "רענון שקט" אוטומטי (requestAccessToken) בטעינת הדף.
-  // קריאה כזו לא מקושרת למחוות משתמש ישירה, ודפדפנים (בעיקר בנייד) חוסמים את ה-popup
-  // שנפתחת ממנה - מה שגורם ל-GIS ליפול ל-redirect מלא של העמוד לעמוד Google, שמחליף
-  // את האפליקציה בבחירת חשבון בכל רענון. לכן החיבור תמיד מחכה ללחיצה ישירה על הכפתור.
-}
 
-function wasSignedInBefore() {
-  return localStorage.getItem(SIGNED_IN_FLAG_KEY) === '1';
+  if (!getDeviceToken()) {
+    if (_onAuthStateChange) _onAuthStateChange('signed-out');
+    return;
+  }
+
+  fetchFreshAccessToken().then(function (token) {
+    if (token) {
+      if (_onAuthStateChange) _onAuthStateChange('signed-in');
+      performInitialSync();
+    } else {
+      if (_onAuthStateChange) _onAuthStateChange('signed-out');
+    }
+  });
 }
 
 function signInToGoogle() {
-  if (!isGoogleSyncSupported() || !_tokenClient) {
-    notifySyncError('סנכרון Google אינו זמין כרגע - בדוק את החיבור לאינטרנט ורענן את הדף');
+  if (!isGoogleSyncSupported()) {
+    notifySyncError('סנכרון Google אינו זמין כרגע - נסה לרענן את הדף');
     return;
   }
-  _tokenClient.requestAccessToken({ prompt: 'consent' });
+  const returnTo = window.location.origin + window.location.pathname;
+  window.location.href = AUTH_WORKER_URL + '/auth/start?returnTo=' + encodeURIComponent(returnTo);
 }
 
 function signOutFromGoogle() {
-  if (_accessToken && typeof google !== 'undefined') {
-    google.accounts.oauth2.revoke(_accessToken, function () {});
-  }
+  const deviceToken = getDeviceToken();
+  localStorage.removeItem(DEVICE_TOKEN_KEY);
   _accessToken = null;
   _syncFileId = null;
-  localStorage.removeItem(SIGNED_IN_FLAG_KEY);
+  if (deviceToken && isGoogleSyncSupported()) {
+    fetch(AUTH_WORKER_URL + '/auth/logout', { method: 'POST', headers: { 'X-Device-Token': deviceToken } })
+      .catch(function () {});
+  }
   if (_onAuthStateChange) _onAuthStateChange('signed-out');
 }
 
@@ -72,18 +112,30 @@ function notifySyncError(message) {
   if (typeof showToast === 'function') showToast(message);
 }
 
-function driveRequest(path, options) {
+// עוטף fetch ל-Drive API עם הרשאה, ומנסה שוב פעם אחת עם טוקן טרי אם קיבלנו 401
+// (הטוקן הישן פג - קורה אחרי כשעה) - בלי לדרוש מהמשתמש אינטראקציה נוספת.
+function driveFetch(url, options) {
   options = options || {};
-  const headers = Object.assign({ Authorization: 'Bearer ' + _accessToken }, options.headers || {});
-  return fetch('https://www.googleapis.com/drive/v3/' + path, Object.assign({}, options, { headers: headers }))
-    .then(function (res) {
-      if (res.status === 401) {
-        _accessToken = null;
-        throw new Error('unauthorized');
-      }
-      if (!res.ok) throw new Error('drive request failed: ' + res.status);
-      return res;
-    });
+  function attempt() {
+    const headers = Object.assign({ Authorization: 'Bearer ' + _accessToken }, options.headers || {});
+    return fetch(url, Object.assign({}, options, { headers: headers }));
+  }
+  return attempt().then(function (res) {
+    if (res.status === 401) {
+      return fetchFreshAccessToken().then(function (token) {
+        if (!token) throw new Error('unauthorized');
+        return attempt();
+      });
+    }
+    return res;
+  });
+}
+
+function driveRequest(path, options) {
+  return driveFetch('https://www.googleapis.com/drive/v3/' + path, options).then(function (res) {
+    if (!res.ok) throw new Error('drive request failed: ' + res.status);
+    return res;
+  });
 }
 
 function findSyncFile() {
@@ -107,12 +159,9 @@ function createSyncFile(data) {
     JSON.stringify(data) + '\r\n' +
     '--' + boundary + '--';
 
-  return fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
+  return driveFetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
     method: 'POST',
-    headers: {
-      Authorization: 'Bearer ' + _accessToken,
-      'Content-Type': 'multipart/related; boundary=' + boundary
-    },
+    headers: { 'Content-Type': 'multipart/related; boundary=' + boundary },
     body: body
   })
     .then(function (res) {
@@ -129,12 +178,9 @@ function readSyncFile(fileId) {
 }
 
 function writeSyncFile(fileId, data) {
-  return fetch('https://www.googleapis.com/upload/drive/v3/files/' + fileId + '?uploadType=media', {
+  return driveFetch('https://www.googleapis.com/upload/drive/v3/files/' + fileId + '?uploadType=media', {
     method: 'PATCH',
-    headers: {
-      Authorization: 'Bearer ' + _accessToken,
-      'Content-Type': 'application/json'
-    },
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data)
   }).then(function (res) {
     if (!res.ok) throw new Error('drive write failed: ' + res.status);

@@ -22,6 +22,19 @@ npx serve .
 
 זיהוי קולי דורש דפדפן התומך ב-Web Speech API (למשל Chrome) והרשאת מיקרופון.
 
-## סנכרון עם Google Drive
+## סנכרון עם Google Drive - התחברות קבועה
 
-מזהה ה-OAuth Client (`js/config.js`) הוא ציבורי לפי עיצוב Google (Web application client ID) ובטוח להישאר בקוד. הפרויקט ב-Google Cloud Console נמצא כרגע במצב "Testing" - כדי שמשתמש יוכל להתחבר, יש להוסיף את חשבון ה-Google שלו תחת Audience → Test users במסך "Google Auth Platform" בפרויקט.
+כדי להישאר מחובר בין טעינות דף (עד התנתקות מפורשת), האפליקציה משתמשת בשרת אימות זעיר (`worker/index.js`, Cloudflare Worker) ששומר בבטחון את ה-Refresh Token של Google - סוד שאסור שיגיע לדפדפן. GitHub Pages משרת רק קבצים סטטיים ולא יכול להריץ את זה בעצמו.
+
+### פריסת ה-Worker (חד-פעמי)
+
+1. **חשבון Cloudflare** - חינמי, בלי כרטיס אשראי, ב-[dash.cloudflare.com](https://dash.cloudflare.com).
+2. **Workers & Pages → Create → Create Worker** - תדביק את התוכן של `worker/index.js` בעורך, Deploy.
+3. **KV Namespace**: Workers & Pages → KV → Create namespace בשם `SESSIONS`. אז ב-Worker → Settings → Bindings → הוסף KV Namespace Binding: Variable name `SESSIONS`, בחר את ה-namespace שנוצר.
+4. **Secrets**: ב-Worker → Settings → Variables and Secrets → הוסף שניים (מסוג Secret, לא Text):
+   - `GOOGLE_CLIENT_ID` - אותו Client ID מ-Google Cloud Console.
+   - `GOOGLE_CLIENT_SECRET` - מהעמוד Google Cloud Console → Google Auth Platform → Clients → (הלקוח הקיים) - יש שם גם Client Secret, עד עכשיו לא היה בשימוש.
+5. **Google Cloud Console**: חזרה ל-Clients → הלקוח הקיים → תחת **Authorized redirect URIs** הוסף: `https://<worker-subdomain>.workers.dev/auth/callback` (הכתובת המדויקת של ה-Worker שקיבלת בשלב 2).
+6. עדכן את `js/config.js`: `AUTH_WORKER_URL` = כתובת ה-Worker (למשל `https://xmoney-auth.<subdomain>.workers.dev`, בלי `/auth/...` בסוף).
+
+הפרויקט ב-Google Cloud Console עדיין במצב "Testing" - רק חשבונות שנוספו כ-Test users (Audience → Test users) יכולים להתחבר.

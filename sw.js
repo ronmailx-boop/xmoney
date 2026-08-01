@@ -1,6 +1,6 @@
 // Service Worker קליל - caching של מעטפת האפליקציה לעבודה אופליין
 
-const CACHE_NAME = 'xmoney-shell-v3';
+const CACHE_NAME = 'xmoney-shell-v4';
 const SHELL_FILES = [
   './',
   './index.html',

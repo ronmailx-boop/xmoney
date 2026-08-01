@@ -615,14 +615,19 @@ function setupGoogleSync() {
   const statusEl = document.getElementById('sync-status');
   const signInBtn = document.getElementById('google-signin-btn');
   const signOutBtn = document.getElementById('google-signout-btn');
+  let authResolved = false;
 
   function refreshUI() {
     if (isSignedInToGoogle()) {
       statusEl.textContent = 'מחובר - הנתונים מסונכרנים אוטומטית ל-Google Drive';
       signInBtn.classList.add('hidden');
       signOutBtn.classList.remove('hidden');
+    } else if (!authResolved && wasSignedInBefore()) {
+      statusEl.textContent = 'מתחבר מחדש ל-Google...';
+      signInBtn.classList.add('hidden');
+      signOutBtn.classList.add('hidden');
     } else if (wasSignedInBefore()) {
-      statusEl.textContent = 'התחברת בעבר - לחץ "התחבר עם Google" כדי להמשיך לסנכרן';
+      statusEl.textContent = 'ההתחברות פגה - לחץ "התחבר עם Google" כדי להתחבר מחדש';
       signInBtn.classList.remove('hidden');
       signOutBtn.classList.add('hidden');
     } else {
@@ -637,13 +642,15 @@ function setupGoogleSync() {
   });
   signOutBtn.addEventListener('click', function () {
     signOutFromGoogle();
+    authResolved = true;
     refreshUI();
   });
 
   initGoogleAuth(function (state) {
+    authResolved = true;
     refreshUI();
     if (state === 'signed-in') {
-      showToast('מתחבר ל-Google Drive ומסנכרן...');
+      showToast('מחובר ל-Google Drive, מסנכרן...');
     }
   });
 

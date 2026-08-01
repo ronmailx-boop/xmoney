@@ -1,5 +1,6 @@
-// מזהה ה-OAuth Client (Web application) מ-Google Cloud Console.
-// זהו מזהה ציבורי לפי עיצוב Google - בטוח לחשיפה בקוד צד-לקוח, בניגוד ל-Client Secret.
-const GOOGLE_CLIENT_ID = '462789769761-2lvstcuhaa7sape0oc17m7vu8l3utfaa.apps.googleusercontent.com';
-const GOOGLE_DRIVE_SCOPE = 'https://www.googleapis.com/auth/drive.appdata';
+// כתובת שרת האימות הזעיר (Cloudflare Worker, ראו worker/index.js) שמחזיק בבטחון את
+// ה-Refresh Token של Google (הדפדפן לעולם לא רואה אותו). יש להחליף לכתובת ה-Worker
+// האמיתית אחרי הפריסה, למשל: 'https://xmoney-auth.<subdomain>.workers.dev'.
+const AUTH_WORKER_URL = 'https://REPLACE-WITH-YOUR-WORKER-URL.workers.dev';
+
 const GOOGLE_SYNC_FILE_NAME = 'xmoney-data.json';
