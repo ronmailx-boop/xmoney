@@ -35,16 +35,15 @@ function initGoogleAuth(onAuthStateChange) {
     });
   } catch (e) {
     _tokenClient = null;
-    return;
   }
+  // הערה: בכוונה אין כאן ניסיון "רענון שקט" אוטומטי (requestAccessToken) בטעינת הדף.
+  // קריאה כזו לא מקושרת למחוות משתמש ישירה, ודפדפנים (בעיקר בנייד) חוסמים את ה-popup
+  // שנפתחת ממנה - מה שגורם ל-GIS ליפול ל-redirect מלא של העמוד לעמוד Google, שמחליף
+  // את האפליקציה בבחירת חשבון בכל רענון. לכן החיבור תמיד מחכה ללחיצה ישירה על הכפתור.
+}
 
-  if (localStorage.getItem(SIGNED_IN_FLAG_KEY) === '1') {
-    try {
-      _tokenClient.requestAccessToken({ prompt: '' });
-    } catch (e) {
-      /* דורש אינטראקציה מחדש - נשאר "לא מחובר" עד לחיצה על הכפתור */
-    }
-  }
+function wasSignedInBefore() {
+  return localStorage.getItem(SIGNED_IN_FLAG_KEY) === '1';
 }
 
 function signInToGoogle() {

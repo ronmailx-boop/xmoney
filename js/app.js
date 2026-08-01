@@ -621,6 +621,10 @@ function setupGoogleSync() {
       statusEl.textContent = 'מחובר - הנתונים מסונכרנים אוטומטית ל-Google Drive';
       signInBtn.classList.add('hidden');
       signOutBtn.classList.remove('hidden');
+    } else if (wasSignedInBefore()) {
+      statusEl.textContent = 'התחברת בעבר - לחץ "התחבר עם Google" כדי להמשיך לסנכרן';
+      signInBtn.classList.remove('hidden');
+      signOutBtn.classList.add('hidden');
     } else {
       statusEl.textContent = 'לא מחובר - הנתונים נשמרים רק במכשיר הזה';
       signInBtn.classList.remove('hidden');
