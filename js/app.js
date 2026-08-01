@@ -584,23 +584,26 @@ function setupSettings() {
   });
 }
 
-function applyTextSize(size) {
-  document.body.classList.remove('text-size-large', 'text-size-xlarge');
-  if (size === 'large') document.body.classList.add('text-size-large');
-  if (size === 'xlarge') document.body.classList.add('text-size-xlarge');
+function applyTextSizePercent(percent) {
+  document.body.style.setProperty('--tx-text-scale', percent / 100);
+  const label = document.getElementById('text-size-value');
+  if (label) label.textContent = percent + '%';
 }
 
 function setupTextSize() {
-  const select = document.getElementById('text-size-select');
+  const slider = document.getElementById('text-size-slider');
   const settings = getSettings();
-  const current = settings.textSize || 'normal';
-  select.value = current;
-  applyTextSize(current);
-  select.addEventListener('change', function () {
+  const current = settings.textSizePercent || 100;
+  slider.value = current;
+  applyTextSizePercent(current);
+
+  slider.addEventListener('input', function () {
+    applyTextSizePercent(parseInt(slider.value, 10));
+  });
+  slider.addEventListener('change', function () {
     const s = getSettings();
-    s.textSize = select.value;
+    s.textSizePercent = parseInt(slider.value, 10);
     saveSettings(s);
-    applyTextSize(select.value);
     scheduleCloudSync();
   });
 }

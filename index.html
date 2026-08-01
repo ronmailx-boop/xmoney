@@ -94,14 +94,30 @@
     <p class="settings-note">לדוגמה: אם תבחר 10, המחזור יהיה מה-10 בחודש עד ה-9 בחודש הבא.</p>
 
     <h2 class="section-title">תצוגה</h2>
-    <label class="settings-field">
-      <span>גודל טקסט בתנועות</span>
-      <select id="text-size-select">
-        <option value="normal">רגיל</option>
-        <option value="large">גדול</option>
-        <option value="xlarge">גדול מאוד</option>
-      </select>
-    </label>
+    <div class="text-size-control">
+      <div class="text-size-control-header">
+        <span>גודל טקסט בתנועות</span>
+        <span class="text-size-value" id="text-size-value">100%</span>
+      </div>
+      <input type="range" id="text-size-slider" min="100" max="300" step="1" value="100">
+
+      <p class="text-size-preview-label">תצוגה מקדימה</p>
+      <div class="text-size-preview">
+        <ul class="tx-list">
+          <li class="tx-row expense">
+            <span class="tx-date">31.7.26</span>
+            <div class="tx-info">
+              <div class="tx-desc">רב קו בכרטיס</div>
+              <div class="tx-meta">
+                <div class="tx-category">תחבורה ורכב ▾</div>
+                <div class="tx-method">אשראי 3245 ▾</div>
+              </div>
+            </div>
+            <span class="tx-amount">-350 שח</span>
+          </li>
+        </ul>
+      </div>
+    </div>
 
     <h2 class="section-title">סנכרון עם Google Drive</h2>
     <div class="sync-box">
